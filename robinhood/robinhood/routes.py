@@ -37,16 +37,6 @@ def get_company_name(symbol):
     return data
 
 
-@app.route("/robinhood/<symbol>")
-def get_stock(symbol):
-    data = Robinhood.get_stock(symbol)
-
-    if not data:
-        return "{} not found".format(symbol), status.HTTP_400_BAD_REQUEST
-
-    return data
-
-
 @app.route("/robinhood/<symbol>/historical/<span>")
 def get_historical(symbol, span):
     historical_data = Robinhood.get_historical(symbol, span)
