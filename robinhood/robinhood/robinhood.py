@@ -1,0 +1,193 @@
+import os
+import json
+from datetime import datetime, date, time
+import robin_stocks.robinhood as r
+
+
+class Robinhood:
+    isAuthentificated = False
+    login_time = ""
+
+    @classmethod
+    def login(cls):
+        email = os.getenv("ROBINHOOD_EMAIL")
+        password = os.getenv("ROBINHOOD_PASSWORD")
+        r.login(email, password)
+        cls.login_time = (datetime.utcnow()).strftime("%H:%M:%S")
+
+    @classmethod
+    def check_login_time(cls):
+        format = "%H:%M:%S"
+        current_time = (datetime.utcnow()).strftime("%H:%M:%S")
+
+        time_delta = abs(
+            datetime.strptime(cls.login_time, format)
+            - datetime.strptime(current_time, format)
+        )
+
+        # Relogin after 22 hours
+        if time_delta.total_seconds() >= 79200:
+            Robinhood.login()
+
+    @classmethod
+    def search_stocks(cls, query):
+        Robinhood.check_login_time()
+
+        res = r.helper.request_get(
+            "https://bonfire.robinhood.com/deprecated_search/?query={}&user_origin=US".format(
+                query
+            ),
+            "regular",
+        )
+
+        stocks = []
+        for stock in res["instruments"]:
+            stocks.append(
+                {
+                    "symbol": stock["symbol"],
+                    "companyName": stock["simple_name"],
+                }
+            )
+
+        return stocks
+
+    @classmethod
+    def get_current_price(cls, symbol):
+        Robinhood.check_login_time()
+
+        current_price = r.stocks.get_latest_price(
+            symbol, includeExtendedHours=False
+        )
+
+        return {"price": current_price}
+
+    @classmethod
+    def get_company_name(cls, symbol):
+        Robinhood.check_login_time()
+
+        company_name = r.stocks.get_name_by_symbol(symbol)
+
+        return {"companyName": company_name}
+
+    @classmethod
+    def get_historical(cls, ticker, span):
+        Robinhood.check_login_time()
+
+        interval = ""
+
+        if span == "day":
+            interval = "5minute"
+        elif span == "week":
+            interval = "hour"
+        elif span == "3month":
+            interval = "day"
+        elif span == "year":
+            interval = "day"
+        elif span == "5year":
+            interval = "week"
+        else:
+            return False
+
+        response = r.stocks.get_stock_historicals(
+            ticker, interval=interval, span=span
+        )
+
+        if response[0] == None:
+            return False
+
+        historical = []
+        for day in response:
+            historical.append(
+                {
+                    "date": day["begins_at"],
+                    "open": day["open_price"],
+                    "close": day["close_price"],
+                }
+            )
+
+        return {"historicalData": historical}
+
+    @classmethod
+    def get_stock(cls, ticker):
+        Robinhood.check_login_time()
+
+        fundamentals = r.get_fundamentals(ticker)
+        instrument_data = r.find_instrument_data(ticker)
+        quotes = r.stocks.get_quotes(ticker)
+        market_symbol = instrument_data[0]["market"].strip(
+            "https://api.robinhood.com/markets/"
+        )
+
+        # Detect invalid index
+        if fundamentals[0] == None:
+            return False
+
+        ticker_data = {}
+        ticker_data["current"] = round(
+            float(
+                r.stocks.get_latest_price(ticker, includeExtendedHours=False)[
+                    0
+                ]
+            ),
+            2,
+        )
+        ticker_data["volume"] = round(float(fundamentals[0]["volume"]), 2)
+        ticker_data["avg_volume"] = round(
+            float(fundamentals[0]["average_volume"]), 2
+        )
+        ticker_data["market_cap"] = round(
+            float(fundamentals[0]["market_cap"]), 2
+        )
+        ticker_data["name"] = r.stocks.find_instrument_data(ticker)[0][
+            "simple_name"
+        ]
+        ticker_data["range"] = {
+            "open": round(float(fundamentals[0]["open"]), 2),
+            "high": round(float(fundamentals[0]["high"]), 2),
+            "low": round(float(fundamentals[0]["low"]), 2),
+            "date": fundamentals[0]["market_date"],
+        }
+        ticker_data["symbol"] = fundamentals[0]["symbol"]
+        ticker_data["timestamp"] = (datetime.utcnow()).strftime("%H:%M:%S")
+
+        # Calculate points and percent change
+        price_change = {}
+        price_change["points"] = round(
+            float(ticker_data["current"] - float(quotes[0]["previous_close"])),
+            2,
+        )
+        price_change["percent"] = round(
+            float(
+                price_change["points"]
+                / float(quotes[0]["previous_close"])
+                * 100
+            ),
+            2,
+        )
+        ticker_data["points_change"] = price_change
+
+        # Market status calculation
+        market_hours = r.get_market_hours(
+            market_symbol, datetime.utcnow().strftime("%Y-%m-%d")
+        )
+
+        if market_hours["opens_at"] != None:
+            open_time = (lambda y: datetime.strptime(y, "%Y-%m-%d %H:%M:%S"))(
+                (lambda x: x.strip("Z").replace("T", " "))(
+                    market_hours["opens_at"]
+                )
+            )
+            close_time = (lambda y: datetime.strptime(y, "%Y-%m-%d %H:%M:%S"))(
+                (lambda x: x.strip("Z").replace("T", " "))(
+                    market_hours["closes_at"]
+                )
+            )
+            now = datetime.utcnow()
+            if now >= open_time and now <= close_time:
+                ticker_data["market_status"] = 1
+            else:
+                ticker_data["market_status"] = 0
+        else:
+            ticker_data["market_status"] = 0
+
+        return ticker_data
