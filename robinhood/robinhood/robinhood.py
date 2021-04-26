@@ -49,7 +49,7 @@ class Robinhood:
                 }
             )
 
-        return stocks
+        return {"results": stocks}
 
     @classmethod
     def get_current_price(cls, symbol):
