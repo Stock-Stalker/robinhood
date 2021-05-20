@@ -1,3 +1,5 @@
+-include secrets.mk
+
 build :
 				docker-compose -f docker-compose.dev.yml build --force-rm --no-cache
 
@@ -15,6 +17,9 @@ reload:
 
 test :
 				docker-compose -f docker-compose.test.yml up --abort-on-container-exit
+
+test-security:
+				snyk config set api=$(snyk_auth_token) && snyk test
 
 reload-test :
 				docker-compose down && docker-compose -f docker-compose.test.yml up --abort-on-container-exit
