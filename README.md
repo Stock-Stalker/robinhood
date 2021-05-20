@@ -26,6 +26,8 @@
 
 `test`: Start test server
 
+`test-security`: Test security vulnerabilities (must have [snyk](https://support.snyk.io/hc/en-us/articles/360003812538-Install-the-Snyk-CLI) installed globally)
+
 `reload-test`: Reload test server
 
 `hard-reload-test`: Remove container, rebuild container, and start test server
