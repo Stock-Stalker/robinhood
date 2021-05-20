@@ -14,6 +14,8 @@
 
 `purge`: *Use with caution* Completely purge Docker containers, networks, images, volumes, and cache
 
+`lint`: Run flake8
+
 `build`: Build development server without running the server
 
 `start`: Start development server at port `8080`
