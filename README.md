@@ -12,7 +12,7 @@
 
 `rmi-all`: Remove all images
 
-`purge`: *Use with caution* Completely purge Docker containers, networks, images, volumes, and cache
+`purge`: _Use with caution_ Completely purge Docker containers, networks, images, volumes, and cache
 
 `lint`: Run flake8
 
@@ -30,7 +30,7 @@
 
 `hard-reload-test`: Remove container, rebuild container, and start test server
 
-`start-prod`: Start the production server at port `80`
+`start-prod`: Start the production server
 
 `debug-prod`: Start the production server in debug mode
 
@@ -38,14 +38,13 @@
 
 To run the app you will need:
 
--   [Docker](https://docs.docker.com/get-docker/)
--   [docker-compse](https://docs.docker.com/compose/install/)
+- [Docker](https://docs.docker.com/get-docker/)
+- [docker-compse](https://docs.docker.com/compose/install/)
 
-The `.env` file is not pushed to GitHub. You'll need to create the file in the root of the `robinhood` directory.
-And within the `.env` file, you'll need:
+The `.env` file is not pushed to GitHub. You'll need to create the file in the root of the `robinhood` directory. And within the `.env` file, you'll need:
 
--   ROBINHOOD_EMAIL
--   ROBINHOOD_PASSWORD
+- ROBINHOOD_EMAIL
+- ROBINHOOD_PASSWORD
 
 Once you have your environment fully set up and secrets secured, run:
 
