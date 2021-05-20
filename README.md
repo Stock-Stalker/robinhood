@@ -48,6 +48,10 @@ The `.env` file is not pushed to GitHub. You'll need to create the file in the r
 - ROBINHOOD_EMAIL
 - ROBINHOOD_PASSWORD
 
+Additionally you'll need to create `secrets.mk`, a Makefile at the root of the project with the following vars:
+
+- snyk_auth_token
+
 Once you have your environment fully set up and secrets secured, run:
 
 ```bash
