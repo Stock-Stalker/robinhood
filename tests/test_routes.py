@@ -5,7 +5,10 @@ from app import app
 
 
 class TestRobinhood(unittest.TestCase):
+    """Robinhood test class."""
+
     def test_search_stocks(self):
+        """Test search stocks route."""
         query = "AAPL"
 
         res = app.test_client().get("/robinhood/search/{0}".format(query))
@@ -15,6 +18,7 @@ class TestRobinhood(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
 
     def test_get_current_price(self):
+        """Test get current price route."""
         symbol = "AAPL"
 
         res = app.test_client().get("/robinhood/{0}/price".format(symbol))
@@ -24,6 +28,7 @@ class TestRobinhood(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
 
     def test_get_company_name(self):
+        """Test get company name route."""
         symbol = "AAPL"
         expected_company_name = "Apple"
 
@@ -35,6 +40,7 @@ class TestRobinhood(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
 
     def test_get_historical(self):
+        """Test get historical route."""
         symbol = "AAPL"
         span = "week"
 

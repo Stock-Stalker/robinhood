@@ -1,15 +1,18 @@
+"""Robinhood util functions."""
 import os
-import json
-from datetime import datetime, date, time
+from datetime import datetime
 import robin_stocks.robinhood as r
 
 
 class Robinhood:
+    """Robinhood class."""
+
     isAuthentificated = False
     login_time = ""
 
     @classmethod
     def login(cls):
+        """Login to Robinhood."""
         email = os.getenv("ROBINHOOD_EMAIL")
         password = os.getenv("ROBINHOOD_PASSWORD")
         r.login(email, password)
@@ -17,6 +20,7 @@ class Robinhood:
 
     @classmethod
     def check_login_time(cls):
+        """Check last login time and relogin to Robinhood."""
         format = "%H:%M:%S"
         current_time = (datetime.utcnow()).strftime("%H:%M:%S")
 
@@ -31,12 +35,17 @@ class Robinhood:
 
     @classmethod
     def search_stocks(cls, query):
+        """
+        Search stocks by query.
+
+        :param query: the search query
+        :returns: an object that contains result
+        """
         Robinhood.check_login_time()
+        search_url = "https://bonfire.robinhood.com/deprecated_search/"
 
         res = r.helper.request_get(
-            "https://bonfire.robinhood.com/deprecated_search/?query={}&user_origin=US".format(
-                query
-            ),
+            "{}?query={}&user_origin=US".format(search_url, query),
             "regular",
         )
 
@@ -53,6 +62,12 @@ class Robinhood:
 
     @classmethod
     def get_current_price(cls, symbol):
+        """
+        Get current price by symbol.
+
+        :param symbol: stock symbol to get current price
+        :returns: an object that contains price
+        """
         Robinhood.check_login_time()
 
         current_price = r.stocks.get_latest_price(
@@ -63,6 +78,12 @@ class Robinhood:
 
     @classmethod
     def get_company_name(cls, symbol):
+        """
+        Get company name by symbol.
+
+        :param symbol: stock symbol to get company name
+        :returns: an object that contains companyName
+        """
         Robinhood.check_login_time()
 
         company_name = r.stocks.get_name_by_symbol(symbol)
@@ -71,6 +92,13 @@ class Robinhood:
 
     @classmethod
     def get_historical(cls, ticker, span):
+        """
+        Get historical data by ticker and span.
+
+        :param ticker: stock ticker to get historical data
+        :param span: span of time for historical data
+        :returns: an object that contains historical
+        """
         Robinhood.check_login_time()
 
         interval = ""
