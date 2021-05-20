@@ -1,0 +1,61 @@
+name: Test Robinhood
+
+on:
+  push:
+    branches-ignore:
+      - 'production'
+    paths-ignore:
+      - '**.md'
+      - 'Makefile'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Use Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. GH editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Test with unittest
+        run: |
+          python -m unittest discover
+        env:
+          ROBINHOOD_EMAIL: ${{ secrets.ROBINHOOD_EMAIL }}
+          ROBINHOOD_PASSWORD: ${{ secrets.ROBINHOOD_PASSWORD }}
+
+      - name: Notify slack success
+        if: success()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
+          status: SUCCESS
+          color: good
+
+      - name: Notify slack fail
+        if: failure()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
+          status: FAILED
+          color: danger
