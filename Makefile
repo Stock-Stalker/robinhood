@@ -28,6 +28,9 @@ start-prod :
 debug-prod:
 				docker-compose --verbose up
 
+lint:
+				flake8 .
+
 rm :
 				docker container prune -f
 				
