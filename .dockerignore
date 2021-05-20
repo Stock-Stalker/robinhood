@@ -1,4 +1,8 @@
 Dockerfile*
 .dockerignore
+docker-compose*
 __pycache__
-env/
+Makefile
+*.md
+.git*
+
