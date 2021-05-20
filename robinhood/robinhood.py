@@ -92,7 +92,7 @@ class Robinhood:
             ticker, interval=interval, span=span
         )
 
-        if response[0] == None:
+        if response[0] is None:
             return False
 
         historical = []
