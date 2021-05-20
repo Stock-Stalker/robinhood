@@ -73,6 +73,9 @@ jobs:
           file: ./Dockerfile
           tags: starlightromero/stockstalker-robinhood:latest
           push: true
+        env:
+          ROBINHOOD_EMAIL: ${{ secrets.ROBINHOOD_EMAIL }}
+          ROBINHOOD_PASSWORD: ${{ secrets.ROBINHOOD_PASSWORD }}
 
       - name: Notify slack success
         if: success()
