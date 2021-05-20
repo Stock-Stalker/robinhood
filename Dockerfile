@@ -4,11 +4,11 @@ LABEL decription="Production image for StockStalker robinhood."
 
 WORKDIR /usr/src/app
 
-COPY predictor/requirements.txt .
+COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY predictor .
+COPY . .
 
 ENV FLASK_APP=app.py
 ENV FLASK_ENV=production
