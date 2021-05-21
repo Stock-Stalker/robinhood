@@ -19,7 +19,10 @@ test :
 				docker-compose -f docker-compose.test.yml up --abort-on-container-exit
 
 test-security:
-				snyk config set api=$(snyk_auth_token) && snyk test
+				snyk config set api=$(snyk_auth_token) && snyk test --fail-on=upgradable
+
+test-image-security:
+				snyk config set api=$(snyk_auth_token) && snyk container test python:3.9 --file=Dockerfile --fail-on=upgradable
 
 reload-test :
 				docker-compose down && docker-compose -f docker-compose.test.yml up --abort-on-container-exit
