@@ -2,10 +2,16 @@ version: "3.9"
 services:
   robinhood:
     restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     container_name: robinhood
-    image: index.docker.io/starlightromero/stockstalker-robinhood
+    volumes:
+      - .:/app
     env_file:
       - .env
+    ports:
+      - 8080:4000
     networks:
       - stockstalker-network
 
