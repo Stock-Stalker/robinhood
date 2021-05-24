@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.10.0a7-slim-buster
 
 LABEL decription="Production image for StockStalker robinhood."
 
