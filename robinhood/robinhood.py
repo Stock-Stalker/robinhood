@@ -1,6 +1,7 @@
 """Robinhood util functions."""
 import os
 from datetime import datetime
+from flask_api import status
 import robin_stocks.robinhood as r
 
 
@@ -19,21 +20,6 @@ class Robinhood:
         cls.login_time = (datetime.utcnow()).strftime("%H:%M:%S")
 
     @classmethod
-    def check_login_time(cls):
-        """Check last login time and relogin to Robinhood."""
-        format = "%H:%M:%S"
-        current_time = (datetime.utcnow()).strftime("%H:%M:%S")
-
-        time_delta = abs(
-            datetime.strptime(cls.login_time, format)
-            - datetime.strptime(current_time, format)
-        )
-
-        # Relogin after 22 hours
-        if time_delta.total_seconds() >= 79200:
-            Robinhood.login()
-
-    @classmethod
     def search_stocks(cls, query):
         """
         Search stocks by query.
@@ -41,7 +27,7 @@ class Robinhood:
         :param query: the search query
         :returns: an object that contains result
         """
-        Robinhood.check_login_time()
+        Robinhood.login()
         search_url = "https://bonfire.robinhood.com/deprecated_search/"
 
         res = r.helper.request_get(
@@ -68,7 +54,7 @@ class Robinhood:
         :param symbol: stock symbol to get current price
         :returns: an object that contains price
         """
-        Robinhood.check_login_time()
+        Robinhood.login()
 
         current_price = r.stocks.get_latest_price(
             symbol, includeExtendedHours=False
@@ -84,7 +70,7 @@ class Robinhood:
         :param symbol: stock symbol to get company name
         :returns: an object that contains companyName
         """
-        Robinhood.check_login_time()
+        Robinhood.login()
 
         company_name = r.stocks.get_name_by_symbol(symbol)
 
@@ -99,7 +85,7 @@ class Robinhood:
         :param span: span of time for historical data
         :returns: an object that contains historical
         """
-        Robinhood.check_login_time()
+        Robinhood.login()
 
         interval = ""
 
@@ -114,14 +100,11 @@ class Robinhood:
         elif span == "5year":
             interval = "week"
         else:
-            return False
+            return "{} not valid".format(span), status.HTTP_400_BAD_REQUEST
 
         response = r.stocks.get_stock_historicals(
             ticker, interval=interval, span=span
         )
-
-        if response[0] is None:
-            return False
 
         historical = []
         for day in response:
