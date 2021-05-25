@@ -46,7 +46,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_AUTH_TOKEN }}
         with:
-          image: python:3.9
+          image: python:3.9-slim-buster
           args: --fail-on=upgradable
 
       - name: Security Test with Snyk
