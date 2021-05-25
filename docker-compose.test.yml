@@ -16,7 +16,7 @@ services:
       - stockstalker-network
     command: >
       bash -c "coverage run -m unittest discover
-      && coverage report -m --fail-under=90"
+      && coverage report -m --fail-under=99"
 
 networks:
   stockstalker-network:
