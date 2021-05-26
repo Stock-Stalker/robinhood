@@ -27,6 +27,14 @@ class TestRoutes(unittest.TestCase):
         self.assertIsInstance(result_json, dict)
         self.assertEqual(res.status_code, 200)
 
+    def test_get_current_price_exceeded_symbol(self):
+        """Test get current price route with exceeded length symbol."""
+        symbol = "AAPL-----"
+
+        res = app.test_client().get("/robinhood/{0}/price".format(symbol))
+
+        self.assertEqual(res.status_code, 400)
+
     def test_get_company_name(self):
         """Test get company name route."""
         symbol = "AAPL"
@@ -38,6 +46,14 @@ class TestRoutes(unittest.TestCase):
 
         self.assertEqual(expected_json, result_json)
         self.assertEqual(res.status_code, 200)
+
+    def test_get_company_name_exceeded_symbol(self):
+        """Test get company name route with exceeded length symbol."""
+        symbol = "AAPL-----"
+
+        res = app.test_client().get("/robinhood/{0}/name".format(symbol))
+
+        self.assertEqual(res.status_code, 400)
 
     def test_get_historical_day(self):
         """Test get historical route for day."""
@@ -104,10 +120,32 @@ class TestRoutes(unittest.TestCase):
         self.assertIsInstance(result_json, dict)
         self.assertEqual(res.status_code, 200)
 
-    def test_get_historical_error(self):
-        """Test get historical route for bad span."""
+    def test_get_historical_invalid_span(self):
+        """Test get historical route for invalid span."""
         symbol = "AAPL"
         span = "decade"
+
+        res = app.test_client().get(
+            "/robinhood/{0}/historical/{1}".format(symbol, span)
+        )
+
+        self.assertEqual(res.status_code, 400)
+
+    def test_get_historical_exceeded_symbol(self):
+        """Test get historical route with exceeded length symbol."""
+        symbol = "AAPL-----"
+        span = "day"
+
+        res = app.test_client().get(
+            "/robinhood/{0}/historical/{1}".format(symbol, span)
+        )
+
+        self.assertEqual(res.status_code, 400)
+
+    def test_get_historical_exceeded_span(self):
+        """Test get historical route with exceeded length span."""
+        symbol = "AAPL"
+        span = "----------"
 
         res = app.test_client().get(
             "/robinhood/{0}/historical/{1}".format(symbol, span)
