@@ -22,6 +22,8 @@
 
 `reload`: Stop development server and restart the server at port `8080`
 
+`hard-reload`: Stop container, remove container, rebuild container, and start development server
+
 `debug`: Start development server in debug mode
 
 `test`: Start test server
