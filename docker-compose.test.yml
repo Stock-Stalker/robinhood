@@ -7,7 +7,8 @@ services:
       dockerfile: Dockerfile.dev
     container_name: robinhood
     volumes:
-      - .:/app
+      - ./tests:/usr/src/app/tests
+      - ./robinhood:/usr/src/app/robinhood
     env_file:
       - .env
     ports:
