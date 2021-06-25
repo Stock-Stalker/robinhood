@@ -9,7 +9,7 @@ HEALTHCHECK --interval=1m --timeout=5s --retries=2 \
 
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements_dev.txt
 
 COPY . .
 
