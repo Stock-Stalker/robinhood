@@ -2,17 +2,17 @@ version: "3.9"
 services:
   robinhood:
     restart: always
+    image: robinhood
     build:
       context: .
       dockerfile: Dockerfile.dev
     container_name: robinhood
     volumes:
-      - ./tests:/usr/src/app/tests
       - ./robinhood:/usr/src/app/robinhood
     env_file:
       - .env
     ports:
-      - 8080:4000
+      - 8080:5000
     networks:
       - stockstalker-network
 
