@@ -1,6 +1,11 @@
-.git*
 __pycache__
 **/__pycache__
+.git*
+.vscode
+build
+dist
+env
+tests
 .coverage
 .dockerignore
 .env*
@@ -8,5 +13,6 @@ __pycache__
 *.md
 docker-compose*
 Dockerfile*
+logo.png
 Makefile
 *.mk
