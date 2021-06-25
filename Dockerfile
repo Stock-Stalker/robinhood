@@ -1,31 +1,29 @@
-FROM python:3.9-slim-buster
+FROM python:3.9-slim-buster AS build
 
 LABEL decription="Production image for StockStalker robinhood."
 
 WORKDIR /usr/src/app
 
-HEALTHCHECK --interval=1m --timeout=5s --retries=2 \
-  CMD curl -f http://localhost/robinhood/AAPL || exit 1
-
-RUN rm -r /tmp/*
-
-RUN rm /usr/bin/expiry && rm /usr/bin/newgrp && rm /usr/bin/chsh && rm /bin/mount && \
-  rm /usr/bin/chage && rm /usr/bin/chfn && rm /usr/bin/passwd && rm /usr/bin/gpasswd && \
-  rm /bin/su && rm /bin/umount && rm /sbin/unix_chkpwd && rm /usr/bin/wall
+RUN apt-get -qq update && \
+  apt-get -qqy --no-install-recommends install binutils=2.31.1-16
 
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
-
-RUN groupadd -g 999 nonroot && useradd -r -u 999 -g nonroot nonroot
-
-USER nonroot
+RUN pip install --no-cache-dir --upgrade pip==21.1.2 && \
+  pip install --no-cache-dir -r requirements.txt &&  \
+  pip install --no-cache-dir pyinstaller==4.3
 
 COPY . .
 
-ENV FLASK_APP=app.py
-ENV FLASK_ENV=production
+RUN pyinstaller wsgi.spec
 
-EXPOSE 4000
+FROM gcr.io/distroless/python3:nonroot
 
-CMD ["flask", "run", "--host=0.0.0.0", "--port=4000"]
+WORKDIR /usr/src/app
+
+COPY --from=build /usr/src/app/dist ./dist
+
+HEALTHCHECK --interval=1m --timeout=5s --retries=2 \
+  CMD curl -f http://localhost/robinhood/AAPL/name || exit 1
+
+ENTRYPOINT [ "dist/wsgi/wsgi" ]
