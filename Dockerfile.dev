@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 HEALTHCHECK --interval=1m --timeout=5s --retries=2 \
         CMD curl -f http://localhost:8080/robinhood/AAPL || exit 1
 
-COPY requirements.txt .
+COPY requirements_dev.txt .
 
 RUN pip install --no-cache-dir -r requirements_dev.txt
 
