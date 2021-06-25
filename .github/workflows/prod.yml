@@ -41,14 +41,6 @@ jobs:
           ROBINHOOD_EMAIL: ${{ secrets.ROBINHOOD_EMAIL }}
           ROBINHOOD_PASSWORD: ${{ secrets.ROBINHOOD_PASSWORD }}
 
-      - name: Docker Image Security Test with Snyk
-        uses: snyk/actions/docker@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_AUTH_TOKEN }}
-        with:
-          image: python:3.9-slim-buster
-          args: --fail-on=upgradable
-
       - name: Security Test with Snyk
         uses: snyk/actions/python-3.8@master
         env:
