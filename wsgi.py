@@ -1,10 +1,5 @@
 from waitress import serve
 from robinhood import app
-import os
 
 if __name__ == "__main__":
-    serve(app, host='0.0.0.0', 
-          port=5000, 
-          threads=8, 
-          url_prefix='/'
-         )
+    serve(app, host='0.0.0.0', port=5000, threads=8, url_prefix='/')
